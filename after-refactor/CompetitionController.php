@@ -60,16 +60,33 @@ class CompetitionController extends Controller
     /**
      * @param Request $request
      * @param $competition_id
-     * @description get some actions by tournament manager and handle it with some private functions
+     * @description get some actions by the tournament manager and handle it with some private functions
      */
-    public function actionHandler(Request $request, $competition_id,OTPService $OTPService)
+    public function actionHandler(Request $request, $competition_id )
     {
+
+        $this->commandHandler->registerBaseCompetitionCommands();
 
         $competition = $this->getCompetition($competition_id);
         $action = $request->get('action');
 
-        return $this->commandHandler->handle($action, $request, $competition);
+        try {
+            return $this->commandHandler->handle($action, $request, $competition);
+
+        }catch (Exception $exception){
+            return array(
+                'ok' => false,
+                'msg' => $exception->getMessage()
+            );
+
+        }
+
+
+
+
     }
+
+
 
 
 }
