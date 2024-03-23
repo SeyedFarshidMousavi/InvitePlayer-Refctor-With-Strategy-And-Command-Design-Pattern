@@ -1,18 +1,21 @@
 <?php
 
-namespace App\CompetitionCommands;
+namespace App\Competition\Commands;
 
 use App\Interfaces\Command;
+use App\Services\CompetitionService;
 use App\Services\OTPService;
+use Exception;
 
 class CommandHandler {
     protected $commands = [];
     protected $OTPService;
+    protected CompetitionService $competitionService;
 
 
-    public function __construct(OTPService $OTPService) {
-        $this->OTPService = $OTPService;
+    public function __construct() {
         $this->registerCommands();
+
     }
 
     public function register($action, Command $command) {
@@ -21,21 +24,25 @@ class CommandHandler {
 
     protected function registerCommands() {
 
-        $this->commands['cancel']  = new CancelCompetitionCommand();
-        $this->commands['start']  = new StartCompetitionCommand();
-        $this->commands['shuffle']  = new ShuffleCompetitionCommand();
-        $this->commands['restrict']  = new RestrictCompetitionCommand();
-        $this->commands['unrestrict']  = new UnRestrictCompetitionCommand();
-        $this->commands['cancel-invite']  = new CancelInviteCompetitionCommand();
-        $this->commands['set-time']  = new SetTimeCompetitionCommand();
-        $this->commands['set-result']  = new SetResultCompetitionCommand();
-        $this->commands['upload-media']  = new UploadMediaCompetitionCommand();
-        $this->commands['remove-media']  = new RemoveMediaCompetitionCommand();
-        $this->commands['media-info']  = new MediaInfoCompetitionCommand();
-        $this->commands['update-settings']  = new UploadSettingsCompetitionCommand();
-        $this->commands['new-step']  = new NewStepCompetitionCommand();
+        $this->commands['cancel']           = app()->make(CancelCompetitionCommand::class);
+        $this->commands['start']            = app()->make(StartCompetitionCommand::class);
+        $this->commands['shuffle']          = app()->make(ShuffleCompetitionCommand::class);
+        $this->commands['restrict']         = app()->make(RestrictCompetitionCommand::class);
+        $this->commands['unrestrict']       = app()->make(UnRestrictCompetitionCommand::class);
+        $this->commands['cancel-invite']    = app()->make(CancelInviteCompetitionCommand::class);
+        $this->commands['set-time']         = app()->make(SetTimeCompetitionCommand::class);
+        $this->commands['set-result']       = app()->make(SetResultCompetitionCommand::class);
+        $this->commands['upload-media']     = app()->make(UploadMediaCompetitionCommand::class);
+        $this->commands['remove-media']     = app()->make(RemoveMediaCompetitionCommand::class);
+        $this->commands['media-info']       = app()->make(MediaInfoCompetitionCommand::class);
+        $this->commands['new-step']         = app()->make(NewStepCompetitionCommand::class);
 
-        $this->commands['invite'] = new InvitePlayerCommand($this->OTPService);
+
+
+        $this->commands['update-settings']  = app()->make(UploadSettingsCompetitionCommand::class);
+        $this->commands['invite']           = app()->make(InvitePlayerCommand::class);
+        $this->commands['makeGroups']       = app()->make(MakeGroupsCompetitionCommand::class);
+
 
     }
 
@@ -44,14 +51,9 @@ class CommandHandler {
         if (!isset($this->commands[$action])) {
             return ['ok' => false, 'msg' => 'اکشن مورد نظر یافت نشد'];
         }
+         return  $this->commands[$action]->execute($request, $competition);
 
-        return $this->commands[$action]->execute($request, $competition);
+
     }
-
-
-
-
-
-
 
 }
